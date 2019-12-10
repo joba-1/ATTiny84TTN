@@ -9,7 +9,8 @@ Send data to TheThingsNetwork. For details look at Leo's great site, in general 
     * ATTiny84 (DIP14 format)
     * RFM95W (solder on an ESP32 breakout board where you removed the 2 10K resistors, not the 0k resistor)
     * BME280 breakout board with 6 pins (4 pins is I2C only, we want SPI)
-    * You dont need the GPIO outputs from Leos cirquit diagram
+    * Somewhat optional: 100nF and 470µF condensators at the ATTiny +/Gnd pins
+    * You dont need the GPIO outputs from Leos cirquit diagram. They are just nice to have on a PCB
     * Optionally connect a led with 470 Ohm resistor from ground to pin 1 (PB1).
         * Blinks fast at startup if BME280 not found (200ms interval)
         * Blinks short on wakeups (8 s interval)
