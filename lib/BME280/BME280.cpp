@@ -271,6 +271,7 @@ float BME280::CalculatePressure
 )
 {
    // Code based on calibration algorthim provided by Bosch.
+   #define int64_t float
    int64_t var1, var2, pressure;
    float final;
 
@@ -286,16 +287,16 @@ float BME280::CalculatePressure
 
    var1 = (int64_t)t_fine - 128000;
    var2 = var1 * var1 * (int64_t)dig_P6;
-   var2 = var2 + ((var1 * (int64_t)dig_P5) << 17);
-   var2 = var2 + (((int64_t)dig_P4) << 35);
-   var1 = ((var1 * var1 * (int64_t)dig_P3) >> 8) + ((var1 * (int64_t)dig_P2) << 12);
-   var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)dig_P1) >> 33;
+   var2 = var2 + ((var1 * (int64_t)dig_P5) * pow(2.,17));
+   var2 = var2 + (((int64_t)dig_P4) * pow(2.,35));
+   var1 = ((var1 * var1 * (int64_t)dig_P3) * pow(2.,8)) + ((var1 * (int64_t)dig_P2) * pow(2.,12));
+   var1 = (((((int64_t)1) * pow(2.,47)) + var1)) * ((int64_t)dig_P1) / pow(2.,33);
    if (var1 == 0) { return NAN; }                                                         // Don't divide by zero.
    pressure   = 1048576 - raw;
-   pressure = (((pressure << 31) - var2) * 3125)/var1;
-   var1 = (((int64_t)dig_P9) * (pressure >> 13) * (pressure >> 13)) >> 25;
-   var2 = (((int64_t)dig_P8) * pressure) >> 19;
-   pressure = ((pressure + var1 + var2) >> 8) + (((int64_t)dig_P7) << 4);
+   pressure = (((pressure * pow(2.,31)) - var2) * 3125)/var1;
+   var1 = (((int64_t)dig_P9) * (pressure / pow(2.,13)) * (pressure / pow(2.,13))) / pow(2.,25);
+   var2 = (((int64_t)dig_P8) * pressure) / pow(2.,19);
+   pressure = ((pressure + var1 + var2) / pow(2.,8)) + (((int64_t)dig_P7) * pow(2.,4));
 
    final = ((uint32_t)pressure)/256.0;
 
