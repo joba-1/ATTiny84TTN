@@ -14,6 +14,15 @@
   modified platform.ini to force to platform 1.8.0 (7212 bytes hex file)
 
 */
+
+// LED blinks fast on BME detect and slow on wakeup
+#define LED 1
+// #undef LED
+
+// Serial debug output
+#define TX  3
+// #undef TX
+
 #include <Arduino.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
@@ -21,7 +30,12 @@
 #include "BME280Spi.h"
 #include "LoRaWAN.h"
 #include "secconfig.h" // remember to rename secconfig_example.h to secconfig.h and to modify this file
+#include <SendOnlySoftwareSerial.h>
 
+#ifdef TX
+#define BAUD 9600
+SendOnlySoftwareSerial debug(TX);
+#endif
 
 // RFM95W
 #define DIO0 10
@@ -70,28 +84,60 @@ void watchdogSetup();
 void setup()
 {
   // define unused pins
-  setUnusedPins();
+  //setUnusedPins();
 
+#ifdef LED
+  pinMode(LED, OUTPUT); // LED for testing...
+#endif
+#ifdef TX
+  debug.begin(BAUD);
+  debug.print("\nhello ");
+#endif
   //Initialize RFM module
   rfm.init();
 
-  lora.setKeys(NwkSkey, AppSkey, DevAddr);
+  lora.setKeys((unsigned char *)NwkSkey, (unsigned char *)AppSkey, (unsigned char *)DevAddr);
 
   // for BME sensor
   while(!bme.begin())
   {
-     // Serial.println("Could not find BME280 sensor!");
-     delay(200);
+#ifdef LED
+    static uint8_t isOn = false;
+    isOn = !isOn;
+    digitalWrite(LED, isOn ? HIGH : LOW);
+#endif
+    // Serial.println("Could not find BME280 sensor!");
+    delay(200);
   }
-
 }
+
+#ifdef TX
+void printInt( const char *label, uint16_t value ) {
+  debug.print(label);
+  debug.print("=");
+  debug.print(value);
+  debug.print(", ");
+}
+#endif
 
 void loop()
 {
-
   // goToSleep for all devices...
   // The watchdog timer will reset.
+#ifdef TX
+  debug.println("sleep");
+#endif
+#ifdef LED
+  digitalWrite(LED, LOW);  // LED off while sleeping
+#endif
   goToSleep();
+#ifdef LED
+  digitalWrite(LED, HIGH); // LED on while active
+  delay(10);               // make LED blink long enough to be visible
+#endif
+#ifdef TX
+  printInt("awake", sleep_count);
+#endif
 
   // use this for non-sleep testing:
   //delay(8000);
@@ -102,6 +148,7 @@ void loop()
   {
     uint16_t tempInt;
     uint16_t humInt;
+    // uint16_t pressInt;
 
     // define bytebuffer
     uint8_t Data_Length = 0x06;
@@ -113,6 +160,7 @@ void loop()
     // from float to uint16_t
     tempInt = temp * 100;
     humInt = hum * 100;
+    //pressInt = press * 100;
 
     // read vcc voltage (mv)
     uint16_t vcc = vccVoltage();
@@ -126,15 +174,25 @@ void loop()
     Data[4] = (humInt >> 8) & 0xff;
     Data[5] = humInt & 0xff;
 
+    // Data[6] = (pressInt >> 8) & 0xff;
+    // Data[7] = pressInt & 0xff;
+
+#ifdef TX
+    printInt("temp", tempInt);
+    printInt("hum", humInt);
+    printInt("vcc", vcc);
+#endif
+
     lora.Send_Data(Data, Data_Length, Frame_Counter_Tx);
 
     Frame_Counter_Tx++;
+#ifdef TX
+    printInt("send", Frame_Counter_Tx);
+#endif
 
     // reset sleep count
     sleep_count = 0;
-
   }
-
 }
 
 
@@ -145,9 +203,13 @@ void setUnusedPins()
 {
   // 0, 1, 2, 3, 8
   pinMode(0, INPUT_PULLUP);
+  #ifndef LED
   pinMode(1, INPUT_PULLUP);
+  #endif
   pinMode(2, INPUT_PULLUP);
+  #ifndef TX
   pinMode(3, INPUT_PULLUP);
+  #endif
   pinMode(8, INPUT_PULLUP);
 }
 
