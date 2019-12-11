@@ -24,6 +24,7 @@ Send data to TheThingsNetwork. For details look at Leo's great site, in general 
     * Give it a name and description
     * Select activation method ABP (or adapt the code for OTAA, can be changed in the device settings)
     * Leave rest at defaults
+    * Change device settings: Disable frame checks (since the device resets framecounter on restart)
 * Copy file src/secconfig_example.h to src/secconfig.h 
 * Copy ID and keys from the device page (bottom) into the new file
 * Connect the ATTiny84 to your UsbAsp programmer, as usual (or use your own flash method, adapting platformio.ini)
@@ -37,7 +38,7 @@ Send data to TheThingsNetwork. For details look at Leo's great site, in general 
 * Call pio run --target upload (or click the right buttons in your IDE of choice...)
 * Put the ATTiny in your breadboard, connect power and wait for 8 s for the first data to arrive at the TTN device page
     * ...if a gateway is in range
-    * ...and I did no mistake - it is not working for me yet :P
+    * ...and you did no mistake - it works for me :P
     
 Good Luck
     
