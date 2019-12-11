@@ -17,11 +17,11 @@
 
 // LED blinks fast on BME detect and slow on wakeup
 #define LED 1
-// #undef LED
+#undef LED
 
 // Serial debug output
 #define TX  3
-// #undef TX
+#undef TX
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -74,7 +74,7 @@ const int sleep_total = 35; // was 35
 
 // all functions declared
 ISR(WDT_vect);
-void readData(float &temp, float &hum, float &press);
+void readData(int32_t &temp, uint32_t &hum, uint32_t &press);
 uint16_t vccVoltage();
 void setUnusedPins();
 void goToSleep();
@@ -146,21 +146,22 @@ void loop()
   // do action if sleep_total is reached
   if (sleep_count >= sleep_total)
   {
-    uint16_t tempInt;
+    int16_t tempInt;
     uint16_t humInt;
-    // uint16_t pressInt;
+    uint16_t pressInt;
 
     // define bytebuffer
-    uint8_t Data_Length = 0x06;
+    uint8_t Data_Length = 0x08;
 	  uint8_t Data[Data_Length];
 
-    float temp, hum, press;
+    int32_t temp;
+    uint32_t hum, press;
     // read data from sensor
     readData(temp, hum, press);
-    // from float to uint16_t
-    tempInt = temp * 100;
-    humInt = hum * 100;
-    //pressInt = press * 100;
+    // from uint32_t to uint16_t
+    tempInt = temp;
+    humInt = hum;
+    pressInt = press / 10;
 
     // read vcc voltage (mv)
     uint16_t vcc = vccVoltage();
@@ -168,18 +169,19 @@ void loop()
     Data[1] = (vcc & 0xff);
 
     // move into bytebuffer
-    Data[2] = (tempInt >> 8) & 0xff;
-    Data[3] = tempInt & 0xff;
+    Data[2] = ((uint16_t)tempInt >> 8) & 0xff;
+    Data[3] = (uint16_t)tempInt & 0xff;
 
     Data[4] = (humInt >> 8) & 0xff;
     Data[5] = humInt & 0xff;
 
-    // Data[6] = (pressInt >> 8) & 0xff;
-    // Data[7] = pressInt & 0xff;
+    Data[6] = (pressInt >> 8) & 0xff;
+    Data[7] = pressInt & 0xff;
 
 #ifdef TX
-    printInt("temp", tempInt);
+    printInt("temp", (uint16_t)tempInt);
     printInt("hum", humInt);
+    printInt("press", pressInt);
     printInt("vcc", vcc);
 #endif
 
@@ -216,7 +218,7 @@ void setUnusedPins()
 /**
  read temperature from BME sensor
 */
-void readData(float &temp, float &hum, float &press)
+void readData(int32_t &temp, uint32_t &hum, uint32_t &press)
 {
   // set units sensor
   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);

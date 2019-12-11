@@ -152,27 +152,27 @@ struct Settings {
 /*****************************************************************/
 
    //////////////////////////////////////////////////
-   /// Read the temperature from the BME280 and return a float.
-   float temp(
+   /// Read the temperature from the BME280 and return a int32_t.
+   int32_t temp(
       TempUnit unit = TempUnit_Celsius);
 
    /////////////////////////////////////////////////////////////////
-   /// Read the pressure from the BME280 and return a float with the
+   /// Read the pressure from the BME280 and return a uint32_t with the
    /// specified unit.
-   float pres(
+   uint32_t pres(
       PresUnit unit = PresUnit_Pa);
 
    /////////////////////////////////////////////////////////////////
    /// Read the humidity from the BME280 and return a percentage
-   /// as a float.
-   float hum();
+   /// as a uint32_t.
+   uint32_t hum();
 
    /////////////////////////////////////////////////////////////////
    /// Read the data from the BME280 in the specified unit.
    void   read(
-      float&    pressure,
-      float&    temperature,
-      float&    humidity,
+      uint32_t&    pressure,
+      int32_t&    temperature,
+      uint32_t&    humidity,
       TempUnit  tempUnit    = TempUnit_Celsius,
       PresUnit  presUnit    = PresUnit_Pa);
 
@@ -308,23 +308,23 @@ private:
 
    /////////////////////////////////////////////////////////////////
    /// Calculate the temperature from the BME280 raw data and
-   /// BME280 trim, return a float.
-   float CalculateTemperature(
+   /// BME280 trim, return a int32_t.
+   int32_t CalculateTemperature(
       int32_t raw,
       int32_t& t_fine,
       TempUnit unit = TempUnit_Celsius);
 
    /////////////////////////////////////////////////////////////////
    /// Calculate the humidity from the BME280 raw data and BME280
-   /// trim, return a float.
-   float CalculateHumidity(
+   /// trim, return a uint32_t.
+   uint32_t CalculateHumidity(
       int32_t raw,
       int32_t t_fine);
 
    /////////////////////////////////////////////////////////////////
    /// Calculate the pressure from the BME280 raw data and BME280
-   /// trim, return a float.
-   float CalculatePressure(
+   /// trim, return a uint32_t.
+   uint32_t CalculatePressure(
       int32_t raw,
       int32_t t_fine,
       PresUnit unit = PresUnit_Pa);
