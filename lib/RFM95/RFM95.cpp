@@ -17,8 +17,10 @@ RFM95::RFM95(int DIO0, int NSS)
   _DIO0 = DIO0;
   _NSS = NSS;
   // init tinySPI
-  SPI.setDataMode(SPI_MODE0);
-  SPI.begin();
+  // Had some SPI hangs, not sure its good to do this during construction
+  // also used by BME280 sensor as well -> moved to setup()
+  // SPI.setDataMode(SPI_MODE0);
+  // SPI.begin();
 }
 
 
