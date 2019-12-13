@@ -13,7 +13,7 @@
   binary was broken on atmelavr platform 1.9.0 (7200 bytes hex file)
   modified platform.ini to force to platform 1.8.0 (7212 bytes hex file)
 
-  @version 2019-12-12
+  @version 2019-12-13
   * @author Joachim Banzhaf (joachim.banzhaf@gmail.com)
   * optional led indicator
   * optional serial debug output
@@ -28,10 +28,10 @@
 
 // Serial debug output
 #define TX  3
-//#undef TX
+#undef TX
 
 #define LORA
-#undef LORA
+//#undef LORA
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -41,9 +41,22 @@
 #include "bme280.h"
 #include "LoRaWAN.h"
 #include "secconfig.h" // remember to rename secconfig_example.h to secconfig.h and to modify this file
-#include <SendOnlySoftwareSerial.h>
+
+
+// all functions declared
+ISR(WDT_vect);
+void readData(bme280_data *data);
+uint16_t vccVoltage();
+void setUnusedPins();
+void goToSleep();
+void watchdogSetup();
+void user_delay_ms(uint32_t period);
+int8_t user_spi_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
+int8_t user_spi_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
+
 
 #ifdef TX
+#include <SendOnlySoftwareSerial.h>
 #define BAUD 9600
 SendOnlySoftwareSerial debug(TX);
 #endif
@@ -57,6 +70,7 @@ RFM95 rfm(DIO0, NSS);
 // define LoRaWAN layer
 LoRaWAN lora = LoRaWAN(rfm);
 #endif
+
 // frame counter for lora
 unsigned int Frame_Counter_Tx = 0x0000;
 
@@ -70,19 +84,10 @@ struct bme280_data bme_comp;
 // increase and checks the counter and sleep again until sleep_total is reached.
 // 5min * 60s = 300/8 = 37,5 = 38.
 // Clocks seem slow on the ATTiny84. 35 sleep intervals give more like 5:15 min delay already
-const int sleep_total = 7; // 7 -> one broadcast every minute (for sporadic tests)
+const int sleep_total = 35; // 7 -> one broadcast every minute (for sporadic tests)
 
 // sleep cycles that will be counted, start with more than sleep_total to start after 8 seconds with first broadcast.
 volatile int sleep_count = sleep_total;
-
-
-// all functions declared
-ISR(WDT_vect);
-void readData(bme280_data *data);
-uint16_t vccVoltage();
-void setUnusedPins();
-void goToSleep();
-void watchdogSetup();
 
 
 // Interface function required for the Bosch driver
@@ -118,27 +123,31 @@ void setup()
 #ifdef LED
   pinMode(LED, OUTPUT); // LED for testing...
   digitalWrite(LED, HIGH);
-  delay(200);
+  delay(50);
   static uint8_t isOn = true;
 #endif
+
 #ifdef TX
   debug.begin(BAUD);
   debug.print("\n\nbme ");
 #endif
+
+  // Init SPI for RFM95 and BME280
+  SPI.setDataMode(SPI_MODE0);
+  SPI.begin();
+
 #ifdef LORA
   //Initialize RFM module
   rfm.init();
-
   lora.setKeys(NwkSkey, AppSkey, DevAddr);
 #endif
+
   // for BME sensor
   bme.dev_id = BME_CS;
-  bme.intf = BME280_SPI_INTF;
+  // bme.intf = BME280_SPI_INTF;
   bme.read = user_spi_read;
   bme.write = user_spi_write;
   bme.delay_ms = user_delay_ms;
-
-  SPI.begin();
 
   pinMode(bme.dev_id, OUTPUT);
   digitalWrite(bme.dev_id, HIGH);
@@ -293,7 +302,7 @@ void readData( bme280_data *data ) {
   if( BME280_OK == bme280_set_sensor_mode(BME280_FORCED_MODE, &bme) ) {
     /* Wait for the measurement to complete and print data @25Hz */
     bme.delay_ms(40);
-    if( BME280_OK != bme280_get_sensor_data(BME280_ALL, data, &bme) ) {
+    if( BME280_OK != bme280_get_sensor_data(/* BME280_ALL, */ data, &bme) ) {
       data->humidity = 0;
       data->pressure = 0;
       data->temperature = 0;
