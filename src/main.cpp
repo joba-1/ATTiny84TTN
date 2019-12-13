@@ -243,7 +243,7 @@ void loop()
     uint16_t mvcc;
 
     // define bytebuffer
-	  uint8_t Data[sizeof(bme_comp) + sizeof(mvcc)];
+    uint8_t Data[sizeof(bme_comp) + sizeof(mvcc)];
     uint8_t *data = Data;
 
     // read data from sensor
@@ -300,7 +300,7 @@ void setUnusedPins()
 */
 void readData( bme280_data *data ) {
   if( BME280_OK == bme280_set_sensor_mode(BME280_FORCED_MODE, &bme) ) {
-    /* Wait for the measurement to complete and print data @25Hz */
+    /* Wait for the measurement to complete */
     bme.delay_ms(40);
     if( BME280_OK != bme280_get_sensor_data(/* BME280_ALL, */ data, &bme) ) {
       data->humidity = 0;
