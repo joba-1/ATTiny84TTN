@@ -305,7 +305,7 @@ void readData( bme280_data *data ) {
   if( BME280_OK == bme280_set_sensor_mode(BME280_FORCED_MODE, &bme) ) {
     /* Wait for the measurement to complete */
     bme.delay_ms(40);
-    if( BME280_OK != bme280_get_sensor_data(/* BME280_ALL, */ data, &bme) ) {
+    if( BME280_OK != bme280_get_sensor_data(BME280_ALL, data, &bme) ) {
       data->humidity = 0;
       data->pressure = 0;
       data->temperature = 0;

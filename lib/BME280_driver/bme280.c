@@ -1438,12 +1438,12 @@ static int8_t null_ptr_check(const struct bme280_dev *dev)
 {
     int8_t rslt;
 
-    if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL))
-    {
-        /* Device structure pointer is not valid */
-        rslt = BME280_E_NULL_PTR;
-    }
-    else
+    // if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL))
+    // {
+    //     /* Device structure pointer is not valid */
+    //     rslt = BME280_E_NULL_PTR;
+    // }
+    // else
     {
         /* Device structure is fine */
         rslt = BME280_OK;
