@@ -209,31 +209,25 @@ void LoRaWAN::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, un
   }
 }
 
+
+// using global variables and initialize them at function start saves precious flash space.
+unsigned char Key_K1[16];
+unsigned char Key_K2[16];
+unsigned char Old_Data[16];
+unsigned char New_Data[16];
+unsigned char Block_B[16];
+
 void LoRaWAN::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
 {
   unsigned char i;
-  unsigned char Block_B[16];
 
-  unsigned char Key_K1[16] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
-  unsigned char Key_K2[16] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
+  memset(Key_K1, 0, sizeof(Key_K1));
+  memset(Key_K2, 0, sizeof(Key_K2));
 
   //unsigned char Data_Copy[16];
 
-  unsigned char Old_Data[16] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
-  unsigned char New_Data[16] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
-
+  memset(Old_Data, 0, sizeof(Old_Data));
+  memset(New_Data, 0, sizeof(New_Data));
 
   unsigned char Number_of_Blocks = 0x00;
   unsigned char Incomplete_Block_Size = 0x00;

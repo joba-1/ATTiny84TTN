@@ -24,7 +24,7 @@
 
 // LED blinks fast on BME detect and slow on wakeup
 #define LED 1
-#undef LED
+// #undef LED
 
 // Serial debug output
 #define TX  3
