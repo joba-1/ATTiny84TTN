@@ -35,6 +35,14 @@ void LoRaWAN::setKeys(unsigned char NwkSkey[], unsigned char AppSkey[], unsigned
 *
 *****************************************************************************************
 */
+
+// Had issues with RAM when RFM_Data[64] from Send_Data() and 
+// Block_A[16] from Encrypt_Payload() where allocated on the stack
+// at the same time. Moving to global and share solved it.
+// Works because the arrays are never used at the same time
+// and always get initialized with new data
+unsigned char Buffer[64];
+
 void LoRaWAN::Send_Data(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx)
 {
   //Define variables
@@ -43,7 +51,8 @@ void LoRaWAN::Send_Data(unsigned char *Data, unsigned char Data_Length, unsigned
   //Direction of frame is up
   unsigned char Direction = 0x00;
 
-  unsigned char RFM_Data[64];
+  // shared RAM with Encrypt_Payload()  
+  unsigned char *RFM_Data = Buffer;
   unsigned char RFM_Package_Length;
 
   unsigned char MIC[4];
@@ -136,7 +145,8 @@ void LoRaWAN::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, un
   unsigned char Number_of_Blocks = 0x00;
   unsigned char Incomplete_Block_Size = 0x00;
 
-  unsigned char Block_A[16];
+  // shared RAM with Send_Data()  
+  unsigned char *Block_A = Buffer;
 
   //Calculate number of blocks
   Number_of_Blocks = Data_Length / 16;
@@ -463,7 +473,7 @@ void LoRaWAN::AES_Encrypt(unsigned char *Data, unsigned char *Key)
 {
   unsigned char Row, Column, Round = 0;
   unsigned char Round_Key[16];
-    unsigned char State[4][4];
+  unsigned char State[4][4];
 
   //  Copy input to State arry
   for( Column = 0; Column < 4; Column++ )
