@@ -1,5 +1,5 @@
 # ATTiny84TTN
-ATTiny84 TTN Node from Leo Korbee (https://www.iot-lab.org/blog/101/) + LED + Serial
+ATTiny84 TTN Node from Leo Korbee (https://www.iot-lab.org/blog/101/) + LED + Serial by me (joba-1)
 
 ## Overview
 
