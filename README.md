@@ -1,5 +1,6 @@
 # ATTiny84TTN
-ATTiny84 TTN Node from Leo Korbee (https://www.iot-lab.org/blog/101/) + LED + Serial or Pressure
+ATTiny84 TTN Node from Leo Korbee (https://www.iot-lab.org/blog/101/) 
++ optional LED, Serial or Pressure by me (JoBa-1)
 
 ## Overview
 

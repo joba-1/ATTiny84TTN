@@ -24,14 +24,14 @@
 
 // LED blinks fast on BME detect and slow on wakeup
 #define LED 1
-//#undef LED
+#undef LED
 
 // Serial debug output
 #define TX  3
 #undef TX
 
 #define LORA
-//#undef LORA
+// #undef LORA
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -148,6 +148,9 @@ void setup()
   bme.read = user_spi_read;
   bme.write = user_spi_write;
   bme.delay_ms = user_delay_ms;
+
+  SPI.setDataMode(SPI_MODE0);
+  SPI.begin();
 
   pinMode(bme.dev_id, OUTPUT);
   digitalWrite(bme.dev_id, HIGH);
