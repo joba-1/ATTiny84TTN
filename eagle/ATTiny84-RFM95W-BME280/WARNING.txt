@@ -1,0 +1,9 @@
+WARNING:
+
+I use the january panel version, but it does not work as is because I got MISO/MOSI wrong.
+That means MISO/MOSI works for programming the ATTiny via the ISP header only.
+It does not work with the RFM95W and the SPI header to the BME280 connected 1:1.
+
+This should be fixed in the march version, but is untested yet.
+Use at your own risk :)
+
